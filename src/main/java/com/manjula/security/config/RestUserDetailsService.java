@@ -1,5 +1,6 @@
 package com.manjula.security.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,14 +14,8 @@ import java.util.Collections;
 @Service
 public class RestUserDetailsService implements UserDetailsService {
 
+    @Autowired
     private PasswordEncoder passwordEncoder;
-
-    public RestUserDetailsService() {
-    }
-
-    public RestUserDetailsService(PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
-    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -30,10 +31,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint);
 
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
         http
             .httpBasic().disable()
             .formLogin().disable()
-            .logout().disable();
+            .logout().disable()
+            .addFilter(new TokenBasedAuthenticationFilter(authenticationManager()))
+            .addFilter(new TokenBasedAuthorizationFilter(authenticationManager()));
 
         http.authorizeRequests()
                 .antMatchers("/messages/anonymous").permitAll()
