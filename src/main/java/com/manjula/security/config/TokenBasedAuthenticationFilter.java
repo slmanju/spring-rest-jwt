@@ -1,8 +1,11 @@
 package com.manjula.security.config;
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.FilterChain;
@@ -10,6 +13,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Date;
+import java.util.UUID;
+
+import static com.manjula.security.config.Constants.*;
 
 /**
  *  remembering who is logged in, but not in sessions.
@@ -31,10 +38,16 @@ public class TokenBasedAuthenticationFilter extends UsernamePasswordAuthenticati
     protected void successfulAuthentication(HttpServletRequest request,
                                             HttpServletResponse response,
                                             FilterChain chain,
-                                            Authentication authResult)
+                                            Authentication authentication)
             throws IOException, ServletException {
-        String token = "success!";
-        response.addHeader(HttpHeaders.AUTHORIZATION, token);
+        String token = Jwts.builder()
+                .setId(UUID.randomUUID().toString())
+                .setSubject(((User) authentication.getPrincipal()).getUsername())
+                .setExpiration(new Date(System.currentTimeMillis() + TOKEN_LIFETIME))
+                .signWith(SignatureAlgorithm.HS512, TOKEN_SECRET)
+                .compact();
+
+        response.addHeader(HttpHeaders.AUTHORIZATION, TOKEN_PREFIX + token);
     }
 
 }
